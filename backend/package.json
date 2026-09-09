@@ -9,11 +9,17 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@langchain/classic": "^1.0.46",
+    "@langchain/cohere": "^1.1.0",
+    "@langchain/community": "^1.1.29",
+    "@langchain/core": "^1.2.9",
+    "@langchain/textsplitters": "^1.0.1",
     "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
+    "langchain": "^1.5.10",
     "multer": "^1.4.5-lts.1",
     "socket.io": "^4.7.5"
   },
