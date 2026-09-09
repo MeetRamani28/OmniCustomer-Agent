@@ -3,13 +3,15 @@ import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import app from './src/app.js';
 import { initializeDatabase } from './src/db/sqlite.js';
+import { initKeywordSearch } from './src/ai/retrieval.js';
 import { appGraph } from './src/agents/graph.js';
 import { HumanMessage } from '@langchain/core/messages';
 
 const PORT = process.env.PORT || 5000;
 
-// Initialize database migrations on startup
+// Initialize database migrations and FTS schema on startup
 initializeDatabase();
+initKeywordSearch();
 
 const httpServer = createServer(app);
 
