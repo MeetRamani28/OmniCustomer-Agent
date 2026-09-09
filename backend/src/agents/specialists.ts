@@ -2,6 +2,7 @@ import { ChatCohere } from '@langchain/cohere';
 import { SystemMessage } from '@langchain/core/messages';
 import { AgentState } from './state.js';
 import { hybridSearch } from '../ai/retrieval.js';
+import { evaluateRefundPolicy } from './guards.js';
 import 'dotenv/config';
 
 const llm = new ChatCohere({
@@ -54,15 +55,27 @@ export const technicalSupportNode = async (state: typeof AgentState.State) => {
   return { messages: [response], nextRoute: 'FINISH' };
 };
 
-// --- 3. Finance Escalation Specialist ---
+// --- 3. Finance Escalation Specialist (Policy Guarded) ---
 const FINANCE_PROMPT = `You are the OmniCustomer Finance Specialist.
 You handle refund requests and billing. 
 Always be polite. Inform the user that refunds require strict policy checks before processing.`;
 
 export const financeNode = async (state: typeof AgentState.State) => {
   console.log('[Agent: Finance] Analyzing escalation request...');
+  const lastMessage = state.messages[state.messages.length - 1]?.content || '';
+  const query = typeof lastMessage === 'string' ? lastMessage : JSON.stringify(lastMessage);
+  
+  const policyResult = evaluateRefundPolicy(query);
+  
+  let financeContext = '';
+  if (policyResult.approved) {
+    financeContext = `SYSTEM ACTION: You MUST inform the user that a micro-compensation of $${policyResult.compensationAmount} has been autonomously APPROVED. Reason: ${policyResult.reason}`;
+  } else {
+    financeContext = `SYSTEM ACTION: You MUST inform the user that the refund is PENDING manual review. Reason: ${policyResult.reason}`;
+  }
+
   const messages = [
-    new SystemMessage(FINANCE_PROMPT),
+    new SystemMessage(`${FINANCE_PROMPT}\n\n${financeContext}`),
     ...state.messages,
   ];
   const response = await llm.invoke(messages);
