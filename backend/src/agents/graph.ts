@@ -1,19 +1,14 @@
 import { StateGraph, START, END } from '@langchain/langgraph';
 import { AgentState } from './state.js';
 import { supervisorNode } from './supervisor.js';
-
-// Step 6 will implement these properly. Mocks for now to successfully compile the state machine.
-const mockNode = async (state: typeof AgentState.State) => {
-  console.log(`[Agent: Mock] Executing specialist route: ${state.nextRoute}`);
-  return { nextRoute: 'FINISH' };
-};
+import { logisticsNode, technicalSupportNode, financeNode, generalNode } from './specialists.js';
 
 const workflow = new StateGraph(AgentState)
   .addNode('supervisor', supervisorNode)
-  .addNode('logistics', mockNode)
-  .addNode('technical_support', mockNode)
-  .addNode('finance', mockNode)
-  .addNode('general', mockNode);
+  .addNode('logistics', logisticsNode)
+  .addNode('technical_support', technicalSupportNode)
+  .addNode('finance', financeNode)
+  .addNode('general', generalNode);
 
 // Define orchestration edges
 workflow.addEdge(START, 'supervisor');
