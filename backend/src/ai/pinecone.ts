@@ -7,15 +7,15 @@ import 'dotenv/config';
 const pineconeApiKey = process.env.PINECONE_API_KEY || 'your_pinecone_api_key_here';
 const pineconeIndexName = process.env.PINECONE_INDEX || 'omnicustomer-index';
 
-let isMockMode = true; // Forced for local E2E testing bypassing cloud dependencies
+let isProduction = process.env.NODE_ENV === 'production';
 let pineconeClient: Pinecone | null = null;
 
-if (!isMockMode) {
+if (isProduction) {
   try {
     pineconeClient = new Pinecone({ apiKey: pineconeApiKey });
   } catch (e) {
     console.warn('[Pinecone] Failed to initialize client. Defaulting to local memory store.', e);
-    isMockMode = true;
+    isProduction = false;
   }
 }
 
@@ -23,8 +23,8 @@ if (!isMockMode) {
 const fallbackMemoryStore = new MemoryVectorStore(getEmbeddings());
 
 export async function getPineconeStore() {
-  if (isMockMode || !pineconeClient) {
-    console.log('[Pinecone] Using local MemoryVectorStore for fallback testing.');
+  if (!isProduction || !pineconeClient) {
+    console.log('[VectorStore] Using local MemoryVectorStore (SQLite/Local equivalent) for development.');
     return fallbackMemoryStore;
   }
 

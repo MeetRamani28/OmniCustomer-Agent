@@ -94,13 +94,17 @@ export const ChatInterface: React.FC = () => {
                 <div
                   className={`px-6 py-4 rounded-3xl shadow-sm leading-relaxed ${
                     msg.sender === "user" 
-                      ? "bg-indigo-600 text-white rounded-tr-sm" 
+                      ? "bg-indigo-600 text-white rounded-tr-sm font-medium" 
                       : "bg-slate-50 text-slate-800 rounded-tl-sm border border-slate-200"
                   }`}
                 >
-                  <ReactMarkdown className="prose prose-sm max-w-none prose-p:leading-relaxed">
-                    {msg.text}
-                  </ReactMarkdown>
+                  {msg.sender === "user" ? (
+                    <p className="whitespace-pre-wrap m-0">{msg.text}</p>
+                  ) : (
+                    <ReactMarkdown className="prose prose-sm max-w-none prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1">
+                      {msg.text}
+                    </ReactMarkdown>
+                  )}
                 </div>
                 {msg.route && (
                   <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400 mt-2 mx-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5">
@@ -118,11 +122,10 @@ export const ChatInterface: React.FC = () => {
             <div className="w-11 h-11 rounded-full flex items-center justify-center shadow-sm ring-1 ring-black/5 bg-gradient-to-br from-slate-100 to-slate-200 text-blue-600">
               <Bot size={22} />
             </div>
-            <div className="px-6 py-4 rounded-3xl bg-slate-50 border border-slate-200 rounded-tl-sm flex items-center gap-3 text-slate-500 shadow-sm">
-              <Loader2 size={18} className="animate-spin text-blue-600" />
-              <span className="text-sm font-medium tracking-wide">
-                Agent synthesizing response...
-              </span>
+            <div className="px-5 py-4 rounded-3xl bg-slate-50 border border-slate-200 rounded-tl-sm flex items-center justify-center gap-1.5 shadow-sm h-[52px]">
+              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: "0ms" }}></div>
+              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: "150ms" }}></div>
+              <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: "300ms" }}></div>
             </div>
           </div>
         )}

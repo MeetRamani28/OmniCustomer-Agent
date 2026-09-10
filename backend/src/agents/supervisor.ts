@@ -1,12 +1,15 @@
 import { ChatCohere } from '@langchain/cohere';
+import { ChatGroq } from '@langchain/groq';
 import { SystemMessage } from '@langchain/core/messages';
 import { AgentState } from './state.js';
 import 'dotenv/config';
 
-const llm = new ChatCohere({
-  apiKey: process.env.COHERE_API_KEY,
-  model: 'command-r-08-2024',
-});
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Dynamic LLM Instantiation
+const llm = isProduction
+  ? new ChatGroq({ apiKey: process.env.GROQ_API_KEY, model: 'llama3-70b-8192' })
+  : new ChatCohere({ apiKey: process.env.COHERE_API_KEY, model: 'command-r-08-2024' });
 
 const SUPERVISOR_SYSTEM_PROMPT = `You are the elite Central Supervisor Agent for OmniCustomer.
 Your responsibility is to analyze the user's message and output a strict JSON object with your routing and security analysis.

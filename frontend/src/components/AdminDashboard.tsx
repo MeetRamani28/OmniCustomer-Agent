@@ -18,8 +18,8 @@ export const AdminDashboard: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       const ext = selectedFile.name.split(".").pop()?.toLowerCase();
-      if (ext !== "txt" && ext !== "md") {
-        toast.error("Only .txt and .md files are supported for ingestion.");
+      if (ext !== "txt" && ext !== "md" && ext !== "pdf") {
+        toast.error("Only .txt, .md, and .pdf files are supported for ingestion.");
         if (fileInputRef.current) fileInputRef.current.value = "";
         return;
       }
@@ -36,7 +36,7 @@ export const AdminDashboard: React.FC = () => {
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
-      toast.error("Failed to sync document to Pinecone cluster.");
+      toast.error("Failed to sync document to the Vector DB.");
       console.error(error);
     } finally {
       setIsUploading(false);
@@ -52,7 +52,7 @@ export const AdminDashboard: React.FC = () => {
             Admin Control Center
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Dynamically ingest knowledge into the Pinecone RAG Cluster.
+            Dynamically ingest knowledge into the Vector RAG Cluster.
           </p>
         </div>
 
@@ -64,14 +64,14 @@ export const AdminDashboard: React.FC = () => {
             </h3>
             <p className="text-sm text-slate-500 mb-6 text-center max-w-sm">
               Upload standard operating procedures, policies, or product manuals
-              (.txt or .md).
+              (.txt, .md, .pdf).
             </p>
 
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleFileSelect}
-              accept=".txt,.md"
+              accept=".txt,.md,.pdf"
               className="hidden"
               id="file-upload"
             />

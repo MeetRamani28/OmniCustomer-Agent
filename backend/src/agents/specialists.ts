@@ -1,14 +1,17 @@
 import { ChatCohere } from '@langchain/cohere';
+import { ChatGroq } from '@langchain/groq';
 import { SystemMessage, AIMessage, ToolMessage } from '@langchain/core/messages';
 import { AgentState } from './state.js';
 import { hybridSearch } from '../ai/retrieval.js';
 import { dbService } from '../db/index.js';
 import 'dotenv/config';
 
-const llm = new ChatCohere({
-  apiKey: process.env.COHERE_API_KEY,
-  model: 'command-r-08-2024',
-});
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Dynamic LLM Instantiation
+const llm = isProduction
+  ? new ChatGroq({ apiKey: process.env.GROQ_API_KEY, model: 'llama3-70b-8192' })
+  : new ChatCohere({ apiKey: process.env.COHERE_API_KEY, model: 'command-r-08-2024' });
 
 // --- 1. Logistics Specialist (High-Speed Context Injection) ---
 export const logisticsNode = async (state: typeof AgentState.State) => {
@@ -24,7 +27,8 @@ You must understand multiple languages including Gujarati and Hindi. Always repl
 Here is the real-time database context of active orders:
 ${dbContext}
 
-If the user asks about an order, match it to this context and provide a highly professional, accurate response. If they don't provide an order ID, ask for it. Do not hallucinate.`;
+If the user asks about an order, match it to this context and provide a highly professional, accurate response. If they don't provide an order ID, ask for it. Do not hallucinate.
+FORMATTING RULE: You MUST format your response using Markdown. Use **bold** for order IDs and statuses, and use \`- \` bullet points for lists.`;
 
   const messages = [
     new SystemMessage(LOGISTICS_PROMPT),
@@ -51,6 +55,7 @@ You must understand multiple languages including Gujarati and Hindi. Always repl
 Answer the user's question based strictly on the provided Context. 
 CRITICAL RULE: You MUST cite your sources using the document numbers provided in the context (e.g., "According to [Doc 1]...").
 If the answer is not in the context, state that you need to escalate the ticket. Do not hallucinate.
+FORMATTING RULE: You MUST format your response using Markdown. Use **bold** for key terms, and use \`- \` bullet points or numbered lists for step-by-step instructions.
 
 Context:
 ${combinedContext}`;

@@ -6,6 +6,7 @@ import path from 'path';
 import { upload } from './middleware/upload.js';
 import { ingestDocuments } from './ai/retrieval.js';
 import { Document } from '@langchain/core/documents';
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 
 const app = express();
 
@@ -35,26 +36,38 @@ app.post('/api/upload', upload.single('file'), async (req, res): Promise<void> =
     const fileExtension = path.extname(req.file.originalname).toLowerCase();
 
     // Strict validation to prevent malformed binary ingestion
-    if (fileExtension !== '.txt' && fileExtension !== '.md') {
+    if (fileExtension !== '.txt' && fileExtension !== '.md' && fileExtension !== '.pdf') {
       fs.unlinkSync(filePath);
-      res.status(400).json({ error: 'Only .txt and .md files are securely supported for RAG ingestion.' });
+      res.status(400).json({ error: 'Only .txt, .md, and .pdf files are securely supported for RAG ingestion.' });
       return;
     }
 
-    // Read the raw text from the uploaded document
-    const rawText = fs.readFileSync(filePath, 'utf-8');
+    let docsToIngest: Document[] = [];
 
-    // Construct the LangChain Document with rich metadata
-    const doc = new Document({
-      pageContent: rawText,
-      metadata: {
-        source: req.file.originalname,
-        ingestedAt: new Date().toISOString(),
-      },
-    });
+    if (fileExtension === '.pdf') {
+      const loader = new PDFLoader(filePath);
+      docsToIngest = await loader.load();
+      docsToIngest.forEach(doc => {
+        doc.metadata.source = req.file?.originalname || 'unknown.pdf';
+        doc.metadata.ingestedAt = new Date().toISOString();
+      });
+    } else {
+      // Read the raw text from the uploaded document
+      const rawText = fs.readFileSync(filePath, 'utf-8');
 
-    // Execute the distributed Pinecone insertion pipeline
-    await ingestDocuments([doc]);
+      // Construct the LangChain Document with rich metadata
+      const doc = new Document({
+        pageContent: rawText,
+        metadata: {
+          source: req.file.originalname,
+          ingestedAt: new Date().toISOString(),
+        },
+      });
+      docsToIngest.push(doc);
+    }
+
+    // Execute the distributed Vector insertion pipeline
+    await ingestDocuments(docsToIngest);
 
     // Safely wipe the local temporary file after successful cloud upload
     fs.unlinkSync(filePath);
