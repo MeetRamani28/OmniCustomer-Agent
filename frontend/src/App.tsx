@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { ChatInterface } from "./components/ChatInterface.tsx";
-import { AdminDashboard } from "./components/AdminDashboard.tsx";
+import { ChatInterface } from "./components/ChatInterface";
+import { AdminDashboard } from "./components/AdminDashboard";
 import { LayoutDashboard, MessageSquare } from "lucide-react";
 
 const App: React.FC = () => {
