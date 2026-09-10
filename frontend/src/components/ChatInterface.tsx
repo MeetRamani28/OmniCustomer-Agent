@@ -1,15 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, ServerCrash, ShieldCheck } from 'lucide-react';
-import { useChat } from '../context/ChatContext.tsx';
-import ReactMarkdown from 'react-markdown';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Send,
+  Bot,
+  User,
+  Loader2,
+  ServerCrash,
+  ShieldCheck,
+} from "lucide-react";
+import { useChat } from "../context/ChatContext.tsx";
+import ReactMarkdown from "react-markdown";
 
 export const ChatInterface: React.FC = () => {
   const { messages, sendMessage, isTyping, isConnected } = useChat();
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -20,7 +27,7 @@ export const ChatInterface: React.FC = () => {
     e.preventDefault();
     if (input.trim()) {
       sendMessage(input);
-      setInput('');
+      setInput("");
     }
   };
 
@@ -33,14 +40,22 @@ export const ChatInterface: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-800">OmniCustomer</h1>
-            <p className="text-sm text-slate-500 font-medium">Enterprise Agent Swarm</p>
+            <p className="text-sm text-slate-500 font-medium">
+              Enterprise Agent Swarm
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full bg-slate-100">
           {isConnected ? (
-            <><ShieldCheck size={16} className="text-emerald-500" /> <span className="text-slate-600">Secure WebSocket</span></>
+            <>
+              <ShieldCheck size={16} className="text-emerald-500" />{" "}
+              <span className="text-slate-600">Secure WebSocket</span>
+            </>
           ) : (
-            <><ServerCrash size={16} className="text-rose-500" /> <span className="text-slate-600">Disconnected</span></>
+            <>
+              <ServerCrash size={16} className="text-rose-500" />{" "}
+              <span className="text-slate-600">Disconnected</span>
+            </>
           )}
         </div>
       </header>
@@ -53,12 +68,21 @@ export const ChatInterface: React.FC = () => {
           </div>
         ) : (
           messages.map((msg) => (
-            <div key={msg.id} className={`flex gap-4 ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center shadow-sm ${msg.sender === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-blue-600'}`}>
-                {msg.sender === 'user' ? <User size={20} /> : <Bot size={20} />}
+            <div
+              key={msg.id}
+              className={`flex gap-4 ${msg.sender === "user" ? "flex-row-reverse" : ""}`}
+            >
+              <div
+                className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center shadow-sm ${msg.sender === "user" ? "bg-indigo-600 text-white" : "bg-slate-100 text-blue-600"}`}
+              >
+                {msg.sender === "user" ? <User size={20} /> : <Bot size={20} />}
               </div>
-              <div className={`flex flex-col max-w-[75%] ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                <div className={`px-5 py-3.5 rounded-2xl ${msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-slate-50 text-slate-800 rounded-tl-sm border border-slate-100'}`}>
+              <div
+                className={`flex flex-col max-w-[75%] ${msg.sender === "user" ? "items-end" : "items-start"}`}
+              >
+                <div
+                  className={`px-5 py-3.5 rounded-2xl ${msg.sender === "user" ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-slate-50 text-slate-800 rounded-tl-sm border border-slate-100"}`}
+                >
                   <ReactMarkdown className="prose prose-sm max-w-none">
                     {msg.text}
                   </ReactMarkdown>
@@ -79,7 +103,9 @@ export const ChatInterface: React.FC = () => {
             </div>
             <div className="px-5 py-3.5 rounded-2xl bg-slate-50 border border-slate-100 rounded-tl-sm flex items-center gap-2 text-slate-400">
               <Loader2 size={16} className="animate-spin" />
-              <span className="text-sm font-medium">Agent synthesizing response...</span>
+              <span className="text-sm font-medium">
+                Agent synthesizing response...
+              </span>
             </div>
           </div>
         )}
