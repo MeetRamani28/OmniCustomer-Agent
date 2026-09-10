@@ -2,13 +2,14 @@ import "dotenv/config";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import app from "./src/app.js";
-import { verifySupabaseConnection, supabase } from "./src/db/supabase.js";
+import { dbService } from "./src/db/index.js";
 import { appGraph } from "./src/agents/graph.js";
 import { HumanMessage } from "@langchain/core/messages";
 
 const PORT = process.env.PORT || 5000;
 
-verifySupabaseConnection();
+// Auto-initialize SQLite in dev, or verify Supabase in prod
+dbService.initialize();
 
 const httpServer = createServer(app);
 
@@ -48,26 +49,8 @@ io.on("connection", (socket) => {
       const outputMessages = finalState[lastNode].messages;
       const finalAIResponse = outputMessages[outputMessages.length - 1].content;
 
-      supabase
-        .from("interactions")
-        .insert([
-          {
-            id: Math.random().toString(36).substring(7),
-            user_id: socket.id,
-            intent: lastNode,
-            content: data.message,
-          },
-        ])
-        .then(({ error }) => {
-          if (error) {
-            console.warn(
-              "[Supabase] Sync Error (Expected if using placeholder keys):",
-              error.message,
-            );
-          } else {
-            console.log("[Supabase] Interaction synced to cloud successfully.");
-          }
-        });
+      // Log interaction persistently based on environment
+      await dbService.logInteraction(socket.id, lastNode, data.message);
 
       socket.emit("agent:response", {
         reply: finalAIResponse,

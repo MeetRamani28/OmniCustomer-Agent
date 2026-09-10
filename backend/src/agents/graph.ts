@@ -1,14 +1,23 @@
 import { StateGraph, START, END } from '@langchain/langgraph';
 import { AgentState } from './state.js';
 import { supervisorNode } from './supervisor.js';
-import { logisticsNode, technicalSupportNode, financeNode, generalNode } from './specialists.js';
+import { 
+  logisticsNode, 
+  technicalSupportNode, 
+  financeNode, 
+  generalNode,
+  securityBlockNode,
+  humanHandoffNode
+} from './specialists.js';
 
 const workflow = new StateGraph(AgentState)
   .addNode('supervisor', supervisorNode)
   .addNode('logistics', logisticsNode)
   .addNode('technical_support', technicalSupportNode)
   .addNode('finance', financeNode)
-  .addNode('general', generalNode);
+  .addNode('general', generalNode)
+  .addNode('security_block', securityBlockNode)
+  .addNode('human_handoff', humanHandoffNode);
 
 // Define orchestration edges
 workflow.addEdge(START, 'supervisor');
@@ -22,6 +31,8 @@ workflow.addConditionalEdges(
     technical_support: 'technical_support',
     finance: 'finance',
     general: 'general',
+    security_block: 'security_block',
+    human_handoff: 'human_handoff'
   }
 );
 
@@ -29,6 +40,8 @@ workflow.addEdge('logistics', END);
 workflow.addEdge('technical_support', END);
 workflow.addEdge('finance', END);
 workflow.addEdge('general', END);
+workflow.addEdge('security_block', END);
+workflow.addEdge('human_handoff', END);
 
 // Compile the highly fault-tolerant cyclic/acyclic graph
 export const appGraph = workflow.compile();

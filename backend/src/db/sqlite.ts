@@ -24,6 +24,18 @@ export function initializeDatabase() {
       content TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS orders (
+      order_id TEXT PRIMARY KEY,
+      customer_name TEXT,
+      status TEXT,
+      expected_delivery TEXT
+    );
+
+    INSERT OR IGNORE INTO orders (order_id, customer_name, status, expected_delivery) VALUES
+    ('ORD-123', 'John Doe', 'In Transit - Out for delivery', 'Today by 8 PM'),
+    ('ORD-456', 'Jane Smith', 'Processing', '2026-09-15'),
+    ('ORD-789', 'Patel', 'Delayed due to weather', '2026-09-18');
   `);
 
   console.log("[SQLite] Migrations complete and schema is ready.");
